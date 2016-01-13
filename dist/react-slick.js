@@ -546,6 +546,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  checkSpecKeys(spec, ['left', 'variableWidth', 'slideCount', 'slidesToShow', 'slideWidth']);
 
 	  var trackWidth;
+	  var specLeft = Math.round(spec.left);
 
 	  if (spec.variableWidth) {
 	    trackWidth = (spec.slideCount + 2 * spec.slidesToShow) * spec.slideWidth;
@@ -558,16 +559,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	  var style = {
 	    opacity: 1,
 	    width: trackWidth,
-	    WebkitTransform: 'translate3d(' + spec.left + 'px, 0px, 0px)',
-	    transform: 'translate3d(' + spec.left + 'px, 0px, 0px)',
+	    WebkitTransform: 'translate3d(' + specLeft + 'px, 0px, 0px)',
+	    transform: 'translate3d(' + specLeft + 'px, 0px, 0px)',
 	    transition: '',
 	    WebkitTransition: '',
-	    msTransform: 'translateX(' + spec.left + 'px)'
+	    msTransform: 'translateX(' + specLeft + 'px)'
 	  };
 
 	  // Fallback for IE8
 	  if (!window.addEventListener && window.attachEvent) {
-	    style.marginLeft = spec.left + 'px';
+	    style.marginLeft = specLeft + 'px';
 	  }
 
 	  return style;
@@ -1264,7 +1265,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
-	  Copyright (c) 2015 Jed Watson.
+	  Copyright (c) 2016 Jed Watson.
 	  Licensed under the MIT License (MIT), see
 	  http://jedwatson.github.io/classnames
 	*/
@@ -1276,7 +1277,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		var hasOwn = {}.hasOwnProperty;
 
 		function classNames () {
-			var classes = '';
+			var classes = [];
 
 			for (var i = 0; i < arguments.length; i++) {
 				var arg = arguments[i];
@@ -1285,19 +1286,19 @@ return /******/ (function(modules) { // webpackBootstrap
 				var argType = typeof arg;
 
 				if (argType === 'string' || argType === 'number') {
-					classes += ' ' + arg;
+					classes.push(arg);
 				} else if (Array.isArray(arg)) {
-					classes += ' ' + classNames.apply(null, arg);
+					classes.push(classNames.apply(null, arg));
 				} else if (argType === 'object') {
 					for (var key in arg) {
 						if (hasOwn.call(arg, key) && arg[key]) {
-							classes += ' ' + key;
+							classes.push(key);
 						}
 					}
 				}
 			}
 
-			return classes.substr(1);
+			return classes.join(' ');
 		}
 
 		if (typeof module !== 'undefined' && module.exports) {

@@ -13,6 +13,7 @@ export var getTrackCSS = function(spec) {
   ]);
 
   var trackWidth;
+  var specLeft = Math.round(spec.left);
 
   if (spec.variableWidth) {
     trackWidth = (spec.slideCount + 2*spec.slidesToShow) * spec.slideWidth;
@@ -25,16 +26,16 @@ export var getTrackCSS = function(spec) {
   var style = {
     opacity: 1,
     width: trackWidth,
-    WebkitTransform: 'translate3d(' + spec.left + 'px, 0px, 0px)',
-    transform: 'translate3d(' + spec.left + 'px, 0px, 0px)',
+    WebkitTransform: 'translate3d(' + specLeft + 'px, 0px, 0px)',
+    transform: 'translate3d(' + specLeft + 'px, 0px, 0px)',
     transition: '',
     WebkitTransition: '',
-    msTransform: 'translateX(' + spec.left + 'px)'
+    msTransform: 'translateX(' + specLeft + 'px)'
   };
 
   // Fallback for IE8
   if (!window.addEventListener && window.attachEvent) {
-    style.marginLeft = spec.left + 'px';
+    style.marginLeft = specLeft + 'px';
   }
 
   return style;
