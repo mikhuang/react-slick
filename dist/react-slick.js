@@ -72,7 +72,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _innerSlider = __webpack_require__(3);
 
-	var _objectAssign = __webpack_require__(8);
+	var _objectAssign = __webpack_require__(11);
 
 	var _objectAssign2 = _interopRequireDefault(_objectAssign);
 
@@ -188,7 +188,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _mixinsEventHandlers2 = _interopRequireDefault(_mixinsEventHandlers);
 
-	var _mixinsHelpers = __webpack_require__(9);
+	var _mixinsHelpers = __webpack_require__(8);
 
 	var _mixinsHelpers2 = _interopRequireDefault(_mixinsHelpers);
 
@@ -262,9 +262,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	  },
 	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
 	    if (this.props.slickGoTo != nextProps.slickGoTo) {
-	      this.setState({ currentSlide: nextProps.slickGoTo });
+	      this.changeSlide({
+	        message: 'index',
+	        index: nextProps.slickGoTo,
+	        currentSlide: this.state.currentSlide
+	      });
+	    } else {
+	      this.update(nextProps);
 	    }
-	    this.update(nextProps);
 	  },
 	  componentDidUpdate: function componentDidUpdate() {
 	    this.adaptHeight();
@@ -327,7 +332,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    return _react2['default'].createElement(
 	      'div',
-	      { className: className },
+	      { className: className, onMouseEnter: this.onInnerSliderEnter, onMouseLeave: this.onInnerSliderLeave },
 	      _react2['default'].createElement(
 	        'div',
 	        {
@@ -368,26 +373,36 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _trackHelper = __webpack_require__(5);
 
-	var _objectAssign = __webpack_require__(8);
+	var _helpers = __webpack_require__(8);
+
+	var _helpers2 = _interopRequireDefault(_helpers);
+
+	var _objectAssign = __webpack_require__(11);
 
 	var _objectAssign2 = _interopRequireDefault(_objectAssign);
 
 	var EventHandlers = {
 	  // Event handler for previous and next
 	  changeSlide: function changeSlide(options) {
-	    var indexOffset, slideOffset, unevenOffset, targetSlide;
+	    var indexOffset, previousInt, slideOffset, unevenOffset, targetSlide;
 	    unevenOffset = this.state.slideCount % this.props.slidesToScroll !== 0;
 	    indexOffset = unevenOffset ? 0 : (this.state.slideCount - this.state.currentSlide) % this.props.slidesToScroll;
 
 	    if (options.message === 'previous') {
 	      slideOffset = indexOffset === 0 ? this.props.slidesToScroll : this.props.slidesToShow - indexOffset;
-	      targetSlide = this.state.currentSlide - slideOffset;
+	      previousInt = this.state.currentSlide - slideOffset;
+	      targetSlide = previousInt === -1 ? this.state.slideCount - 1 : previousInt;
 	    } else if (options.message === 'next') {
 	      slideOffset = indexOffset === 0 ? this.props.slidesToScroll : indexOffset;
 	      targetSlide = this.state.currentSlide + slideOffset;
 	    } else if (options.message === 'dots') {
 	      // Click on dots
 	      targetSlide = options.index * options.slidesToScroll;
+	      if (targetSlide === options.currentSlide) {
+	        return;
+	      }
+	    } else if (options.message === 'index') {
+	      targetSlide = options.index;
 	      if (targetSlide === options.currentSlide) {
 	        return;
 	      }
@@ -514,6 +529,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	      this.setState({
 	        trackStyle: (0, _trackHelper.getTrackAnimateCSS)((0, _objectAssign2['default'])({ left: currentLeft }, this.props, this.state))
 	      });
+	    }
+	  },
+	  onInnerSliderEnter: function onInnerSliderEnter(e) {
+	    if (this.props.autoplay && this.props.pauseOnHover) {
+	      this.pause();
+	    }
+	  },
+	  onInnerSliderLeave: function onInnerSliderLeave(e) {
+	    if (this.props.autoplay && this.props.pauseOnHover) {
+	      this.autoPlay();
 	    }
 	  }
 	};
@@ -681,38 +706,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 8 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	function ToObject(val) {
-		if (val == null) {
-			throw new TypeError('Object.assign cannot be called with null or undefined');
-		}
-
-		return Object(val);
-	}
-
-	module.exports = Object.assign || function (target, source) {
-		var from;
-		var keys;
-		var to = ToObject(target);
-
-		for (var s = 1; s < arguments.length; s++) {
-			from = arguments[s];
-			keys = Object.keys(Object(from));
-
-			for (var i = 0; i < keys.length; i++) {
-				to[keys[i]] = from[keys[i]];
-			}
-		}
-
-		return to;
-	};
-
-
-/***/ },
-/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -731,13 +724,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _ReactDOM2 = _interopRequireDefault(_ReactDOM);
 
-	var _reactLibReactTransitionEvents = __webpack_require__(10);
+	var _reactLibReactTransitionEvents = __webpack_require__(9);
 
 	var _reactLibReactTransitionEvents2 = _interopRequireDefault(_reactLibReactTransitionEvents);
 
 	var _trackHelper = __webpack_require__(5);
 
-	var _objectAssign = __webpack_require__(8);
+	var _objectAssign = __webpack_require__(11);
 
 	var _objectAssign2 = _interopRequireDefault(_objectAssign);
 
@@ -815,6 +808,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var targetSlide, currentSlide;
 	    var targetLeft, currentLeft;
 	    var callback;
+
+	    if (this.props.waitForAnimate && this.state.animating) {
+	      return;
+	    }
 
 	    if (this.state.currentSlide === index) {
 	      return;
@@ -988,7 +985,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      if (_this2.state.mounted) {
 	        var nextIndex = _this2.props.rtl ? _this2.state.currentSlide - _this2.props.slidesToScroll : _this2.state.currentSlide + _this2.props.slidesToScroll;
 
-	        _this2.slideHandler(nextIndex % _this2.state.slideCount);
+	        _this2.slideHandler(nextIndex);
 	      }
 	    };
 	    if (this.props.autoplay) {
@@ -997,6 +994,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	        autoPlayTimer: window.setTimeout(play, this.props.autoplaySpeed)
 	      });
 	    }
+	  },
+	  pause: function pause() {
+	    if (this.state.autoPlayTimer) {
+	      window.clearTimeout(this.state.autoPlayTimer);
+	    }
 	  }
 	};
 
@@ -1004,7 +1006,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 10 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -1020,7 +1022,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	'use strict';
 
-	var ExecutionEnvironment = __webpack_require__(11);
+	var ExecutionEnvironment = __webpack_require__(10);
 
 	/**
 	 * EVENT_NAME_MAP is used to determine which event fired when a
@@ -1118,7 +1120,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = ReactTransitionEvents;
 
 /***/ },
-/* 11 */
+/* 10 */
 /***/ function(module, exports) {
 
 	/**
@@ -1157,6 +1159,38 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 	module.exports = ExecutionEnvironment;
+
+/***/ },
+/* 11 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	function ToObject(val) {
+		if (val == null) {
+			throw new TypeError('Object.assign cannot be called with null or undefined');
+		}
+
+		return Object(val);
+	}
+
+	module.exports = Object.assign || function (target, source) {
+		var from;
+		var keys;
+		var to = ToObject(target);
+
+		for (var s = 1; s < arguments.length; s++) {
+			from = arguments[s];
+			keys = Object.keys(Object(from));
+
+			for (var i = 0; i < keys.length; i++) {
+				to[keys[i]] = from[keys[i]];
+			}
+		}
+
+		return to;
+	};
+
 
 /***/ },
 /* 12 */
@@ -1234,6 +1268,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    infinite: true,
 	    initialSlide: 0,
 	    lazyLoad: false,
+	    pauseOnHover: false,
 	    responsive: null,
 	    rtl: false,
 	    slide: 'div',
@@ -1247,7 +1282,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    useCSS: true,
 	    variableWidth: false,
 	    vertical: false,
-	    // waitForAnimate: true,
+	    waitForAnimate: true,
 	    afterChange: null,
 	    beforeChange: null,
 	    edgeEvent: null,
@@ -1330,7 +1365,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _objectAssign = __webpack_require__(8);
+	var _objectAssign = __webpack_require__(11);
 
 	var _objectAssign2 = _interopRequireDefault(_objectAssign);
 
@@ -1344,7 +1379,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  if (spec.rtl) {
 	    index = spec.slideCount - 1 - spec.index;
-	    console.log();
 	  } else {
 	    index = spec.index;
 	  }
@@ -1352,7 +1386,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  slickCloned = index < 0 || index >= spec.slideCount;
 	  if (spec.centerMode) {
 	    centerOffset = Math.floor(spec.slidesToShow / 2);
-	    slickCenter = spec.currentSlide === index;
+	    slickCenter = (index - spec.currentSlide) % spec.slideCount === 0;
 	    if (index > spec.currentSlide - centerOffset - 1 && index <= spec.currentSlide + centerOffset) {
 	      slickActive = true;
 	    }
