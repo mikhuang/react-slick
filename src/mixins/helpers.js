@@ -5,6 +5,8 @@ import ReactDOM from './ReactDOM';
 import ReactTransitionEvents from 'react/lib/ReactTransitionEvents';
 import {getTrackCSS, getTrackLeft, getTrackAnimateCSS} from './trackHelper';
 import assign from 'object-assign';
+import Visibility from 'visibilityjs';
+
 
 var helpers = {
   initialize: function (props) {
@@ -261,15 +263,15 @@ var helpers = {
       }
     };
     if (this.props.autoplay) {
-      window.clearTimeout(this.state.autoPlayTimer);
+      Visibility.stop(this.state.autoPlayTimer);
       this.setState({
-        autoPlayTimer: window.setTimeout(play, this.props.autoplaySpeed)
+        autoPlayTimer: Visibility.every(this.props.autoplaySpeed, play)
       });
     }
   },
   pause: function () {
     if (this.state.autoPlayTimer) {
-      window.clearTimeout(this.state.autoPlayTimer);
+      Visibility.stop(this.state.autoPlayTimer);
     }
   }
 };
